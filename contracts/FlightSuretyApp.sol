@@ -36,6 +36,12 @@ contract FlightSuretyApp {
 
     // adding data contract
     FlightSuretyData flightSuretyData;
+    
+    //multiparty-consensus
+    mapping (address => address[]) public multiCalls;
+
+    //minimum payment for airline to be registered
+     uint public minPayment = 10 ether;
 
  
     /********************************************************************************************/
@@ -66,6 +72,27 @@ contract FlightSuretyApp {
         _;
     }
 
+    modifier requireEnoughFunds(){
+        require(msg.value >= minPayment, "It is needed at least 10ETH to register");
+        _;
+    }
+    modifier requirePaidRegistration()
+    {
+     require(flightSuretyData.paidRegistration(msg.sender), "Airline needs to pay registration fee");
+      _;
+    }
+
+    modifier requireIsAirline()
+    {
+      require(flightSuretyData.isAirline(msg.sender), "Airline needs to be registered");
+      _; 
+    }
+
+     modifier requireMinimumPayment() {
+        require(msg.value >= minPayment, "Requires 10 ETH to be registered");
+        _;
+    }
+
     /********************************************************************************************/
     /*                                       CONSTRUCTOR                                        */
     /********************************************************************************************/
@@ -85,6 +112,13 @@ contract FlightSuretyApp {
     }
 
     /********************************************************************************************/
+    /*                                       EVENTS                                             */
+    /********************************************************************************************/
+
+    // Register an event for flight registration
+    event registeredFlight(address airlineAddress, string flightCode, string destination, uint256 departureTime);
+
+    /********************************************************************************************/
     /*                                       UTILITY FUNCTIONS                                  */
     /********************************************************************************************/
 
@@ -94,6 +128,15 @@ contract FlightSuretyApp {
                             returns(bool) 
     {
         return (flightSuretyData.isOperational());  // Modify to call data contract's status
+    }
+
+    function setOperatingStatus
+                            (
+                                bool mode
+                            ) 
+                            external
+    {
+        flightSuretyData.setOperatingStatus(mode); 
     }
 
     /********************************************************************************************/
