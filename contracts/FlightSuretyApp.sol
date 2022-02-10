@@ -335,3 +335,43 @@ contract FlightSuretyApp {
 // endregion
 
 }   
+
+/* 
+* FlightSuretyData interface
+*/
+contract FlightSuretyData{
+
+     struct Airline {
+        string name;
+        bool isRegistered;
+        bool paidRegistration;
+    }   
+    mapping(address => Airline) airlines;
+    uint256 public totalRegisteredAirlines;
+
+    function isOperational() 
+                            public 
+                            view 
+                            returns(bool);
+
+    function setOperatingStatus
+                            (
+                                bool mode
+                            ) 
+                            external;
+
+    function paidRegistration(
+                               address airlineAddress
+                               ) 
+                               external
+                               view 
+                              returns (bool);
+
+    function registerAirline
+                            ( 
+                                string name,
+                                address newAirline,
+                                address airlineReferral
+                            )
+                            external;
+}
