@@ -22,7 +22,7 @@ contract('Flight Surety Tests', async (accounts) => {
 
   });
 
-  it(`(multiparty) can block access to setOperatingStatus() for non-Contract Owner account`, async function () {
+  /*it(`(multiparty) can block access to setOperatingStatus() for non-Contract Owner account`, async function () {
 
       // Ensure that access is denied for non-Contract Owner account
       let accessDenied = false;
@@ -88,7 +88,7 @@ contract('Flight Surety Tests', async (accounts) => {
     // ASSERT
     assert.equal(result, false, "Airline should not be able to register another airline if it hasn't provided funding");
 
-  });
+  });*/
  
 
 });

@@ -34,6 +34,7 @@ contract FlightSuretyData {
     */
     constructor
                                 (
+                                    address genesisAirline
                                 ) 
                                 public 
     {
@@ -44,7 +45,7 @@ contract FlightSuretyData {
                                      isRegistered: true,
                                      registrationFee: true
         });
-
+        airlines[genesisAirline].isRegistered = true;
         totalRegisteredAirlines = 1;
     }
     event newAirlineRegistered(address newAirline,address airlineReferral);     // register a new event
