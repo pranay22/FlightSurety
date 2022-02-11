@@ -23,6 +23,21 @@ contract FlightSuretyData {
     uint256 public totalRegisteredAirlines;
     mapping(address => uint256) private authorizedCaller;
 
+    struct Flight {
+        uint statusCode;
+        string flightCode;
+        string origin;
+        string destination;
+        uint256 departureTime;
+        uint ticketFee;
+        address airlineAddress;
+        mapping(address => bool) flightBookings;
+        mapping(address => uint) flightiInsurances;
+    }     
+    mapping(bytes32 => Flight) public flights;                            
+    bytes32[] public flightKeys;
+    uint public totalFlightKeys = 0;
+
     /********************************************************************************************/
     /*                                       EVENT DEFINITIONS                                  */
     /********************************************************************************************/
