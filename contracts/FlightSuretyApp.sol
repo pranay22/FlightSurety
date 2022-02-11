@@ -149,13 +149,45 @@ contract FlightSuretyApp {
     *
     */   
     function registerAirline
-                            (   
+                            (
+                                string name,   
+                                address newAirline   
                             )
+                            requirePaidRegistration
+                            requireIsAirline
                             external
-                            pure
-                            returns(bool success, uint256 votes)
     {
-        return (success, 0);
+        if(flightSuretyData.totalRegisteredAirlines() < 4){
+            flightSuretyData.registerAirline(name, newAirline, msg.sender);
+        }else{
+
+        bool isDuplicate = false;
+        for(uint c=0; c<multiCalls[newAirline].length; c++) {
+            if (multiCalls[newAirline][c] == msg.sender) {
+                isDuplicate = true;
+                break;
+            }
+        }
+        require(!isDuplicate, "Caller has already called this function.");
+
+        multiCalls[newAirline].push(msg.sender);
+        //multiparty-consensus needs 50%
+        if (multiCalls[newAirline].length >= flightSuretyData.totalRegisteredAirlines().div(2)) {     
+            multiCalls[newAirline] = new address[](0);     
+            flightSuretyData.registerAirline(name, newAirline, msg.sender);
+         }
+        }
+    }
+
+    function fund 
+                 (
+                 )
+                 external
+                 requireIsOperational
+                 requireEnoughFunds
+                 payable
+    {
+        flightSuretyData.fund.value(msg.value)(msg.sender); 
     }
 
 
@@ -165,11 +197,28 @@ contract FlightSuretyApp {
     */  
     function registerFlight
                                 (
+                                    uint statusCode,
+                                    string flightCode,
+                                    string origin,
+                                    string destination,
+                                    uint256 departureTime,
+                                    uint ticketFee
                                 )
                                 external
-                                pure
+                                requireIsOperational
+                                requirePaidRegistration
     {
-
+        flightSuretyData.registerFlight(
+          statusCode,
+          flightCode,
+          origin,
+          destination,
+          departureTime,
+          ticketFee,
+          msg.sender
+        );
+        // emit event for flight registration
+        emit registeredFlight(msg.sender, flightCode, destination, departureTime);
     }
     
    /**
@@ -408,18 +457,45 @@ contract FlightSuretyData{
                             ) 
                             external;
 
-    function paidRegistration(
+    function paidRegistration
+                            (
                                address airlineAddress
-                               ) 
-                               external
-                               view 
-                              returns (bool);
+                            ) 
+                            external
+                            view 
+                            returns (bool);
+
+    function isAirline
+                    (
+                        address addressAirline
+                    )
+                    external
+                    view
+                    returns (bool);                        
+
+    function fund
+                (    
+                    address fundAddress
+                )
+                public
+                payable; 
 
     function registerAirline
-                            ( 
-                                string name,
-                                address newAirline,
-                                address airlineReferral
-                            )
-                            external;
+                        ( 
+                            string name,
+                            address newAirline,
+                            address airlineReferral
+                        )
+                        external;
+    function registerFlight
+                        (
+                            uint statusCode,
+                            string flightCode,
+                            string origin,
+                            string destination,
+                            uint256 departureTime,
+                            uint ticketFee,
+                            address airlineAddress
+                        )
+                        external;
 }
