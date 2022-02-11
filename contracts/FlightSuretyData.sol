@@ -63,8 +63,14 @@ contract FlightSuretyData {
         airlines[genesisAirline].isRegistered = true;
         totalRegisteredAirlines = 1;
     }
-    event newAirlineRegistered(address newAirline,address airlineReferral);     // register a new event
+    
+    /********************************************************************************************/
+    /*                                       Events                                 */
+    /********************************************************************************************/
 
+    event newAirlineRegistered(address newAirline,address airlineReferral);     // register a new event
+    
+    event receivedRegistrationFee(address fundAddress);
     /********************************************************************************************/
     /*                                       FUNCTION MODIFIERS                                 */
     /********************************************************************************************/
