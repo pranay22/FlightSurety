@@ -331,7 +331,8 @@ contract FlightSuretyData {
                             external 
                             payable 
     {
-        fund();
+        require(msg.data.length == 0,"Fallback function,data must be greater than Zero to proceed");
+        fund(msg.sender);
     }
 
 
