@@ -170,14 +170,14 @@ contract FlightSuretyData {
         return authorizedCaller[caller]; 
     }
 
-    function isAirlineRegisted(
-                               address addressAirline
-                              )
-                              external
-                              view
-                              returns (bool)
-                              {                    
-    return airlines[addressAirline].isRegistered;                                                   
+    function isAirline(
+                    address addressAirline
+                        )
+                        external
+                        view
+                        returns (bool)
+                        {                    
+        return airlines[addressAirline].isRegistered;                                                   
     }
 
     function paidRegistration(
@@ -206,7 +206,7 @@ contract FlightSuretyData {
                                 address airlineReferral 
                             )
                             external
-                            requireContractOwner
+                            requireIsOperational
     {
         require(!airlines[newAirline].isRegistered, "Airline is registered alredy");
         require(airlines[airlineReferral].isRegistered, "Referral Airline is not yet registered.");
@@ -219,6 +219,44 @@ contract FlightSuretyData {
         totalRegisteredAirlines = totalRegisteredAirlines.add(1);
 
         emit newAirlineRegistered(newAirline,airlineReferral);
+    }
+
+    function registerFlight
+                        (
+                            uint statusCode,
+                            string flightCode,
+                            string origin,
+                            string destination,
+                            uint256 departureTime,
+                            uint ticketFee,
+                            address airlineAddress
+                        )
+                        external
+                        requireIsOperational
+    {
+        require(departureTime > now, "Flight time must be later");
+
+        Flight memory flight = Flight(
+          statusCode,
+          flightCode,
+          origin,
+          destination,
+          departureTime,
+          ticketFee,
+          airlineAddress
+        );
+
+        bytes32 flightKey = getFlightKey
+                           (
+                            airlineAddress,
+                            flightCode,
+                            departureTime
+                           );
+
+        flights[flightKey] = flight;
+
+        totalFlightKeys = flightKeys.push(flightKey).sub(1);
+
     }
 
 
@@ -275,14 +313,14 @@ contract FlightSuretyData {
     function getFlightKey
                         (
                             address airline,
-                            string memory flight,
-                            uint256 timestamp
+                            string flightCode,
+                            uint256 departureTime
                         )
                         pure
                         internal
                         returns(bytes32) 
     {
-        return keccak256(abi.encodePacked(airline, flight, timestamp));
+        return keccak256(abi.encodePacked(airline, flightCode, departureTime));
     }
 
     /**
