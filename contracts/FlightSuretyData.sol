@@ -21,7 +21,7 @@ contract FlightSuretyData {
 
     mapping(address => Airline) airlines;
     uint256 public totalRegisteredAirlines;
-    mapping(address => uint256) private authorizedCaller;
+    mapping(address => bool) private authorizedCaller;
 
     struct Flight {
         uint statusCode;
@@ -38,7 +38,7 @@ contract FlightSuretyData {
     bytes32[] public flightKeys;
     uint public totalFlightKeys = 0;
     address[] internal customers;
-    mapping(address => uint) public claimAmount;
+    mapping(address => uint) public insureeCredit;
 
     /********************************************************************************************/
     /*                                       EVENT DEFINITIONS                                  */
@@ -55,7 +55,7 @@ contract FlightSuretyData {
                                 ) 
                                 public 
     {
-        authorizedCaller[msg.sender] = 1;
+        authorizedCaller[msg.sender] = true;
         contractOwner = msg.sender;
         airlines[msg.sender] = Airline({
                                      name: "Genesis Airline",
@@ -77,6 +77,10 @@ contract FlightSuretyData {
     event gotTicket(bytes32 flightKey,address passengerAddress); 
 
     event boughtInsurance(bytes32 flightKey,address customerAddress, uint amount); 
+
+    event creditInsurance(uint payment, address customer); 
+
+    event insurancePaid(uint payment, address customer);
     /********************************************************************************************/
     /*                                       FUNCTION MODIFIERS                                 */
     /********************************************************************************************/
@@ -100,7 +104,7 @@ contract FlightSuretyData {
     */
     modifier requireIsCallerAuthorized()
     {
-        require(authorizedCaller[msg.sender] == 1, "Caller is not authorized");
+        require(authorizedCaller[msg.sender] == true, "Not authorized caller");
         _;
     }
 
@@ -116,6 +120,11 @@ contract FlightSuretyData {
     modifier requireIsFlight(bytes32 flightKey)
     {
         require(flights[flightKey].ticketFee > 0, "Flight does not exist");
+        _;
+    }
+
+    modifier requiredNoProccessPaymentInsuree(bytes32 flightKey) {
+        require(flights[flightKey].statusCode != 20, "No insurance is returned except flight is delayed by airline");
         _;
     }
 
@@ -148,37 +157,38 @@ contract FlightSuretyData {
                             ) 
                             external
     {
-        require(authorizedCaller[msg.sender] == 1, "Caller is not authorized");
+        require(authorizedCaller[msg.sender] == true, "Caller is not authorized");
         operational = mode;
     }
 
     function authorizeCaller
-                            (
-                                address callerAddress
-                            )
-                            external
-                            requireContractOwner
+                        (
+                            address callerAddress
+                        )
+                        external
+                        requireContractOwner
     {
-        authorizedCaller[callerAddress] = 1;
+        authorizedCaller[callerAddress] = true;
     }
 
     function deauthorizeCaller
-                            (
-                                address callerAddress
-                            )
-                            external
-                            requireContractOwner
+                        (
+                            address callerAddress
+                        )
+                        external
+                        requireContractOwner
     {
         delete authorizedCaller[callerAddress];
     }
 
-    function isAuthorizedCaller (
-                                 address caller
-                                 ) 
-                                 public 
-                                 view  
-                                 returns (uint256)
-                                  {
+    function isAuthorizedCaller 
+                        (
+                            address caller
+                        ) 
+                        public 
+                        view  
+                        returns (bool)
+                        {
         return authorizedCaller[caller]; 
     }
 
@@ -309,7 +319,7 @@ contract FlightSuretyData {
         Flight storage flight = flights[flightKey];  
         flight.flightInsurances[customerAddress] = payment;   
         customers.push(customerAddress);
-        claimAmount[flight.airlineAddress] = flight.ticketFee;   
+        insureeCredit[flight.airlineAddress] = flight.ticketFee;   
         emit boughtInsurance(flightKey,customerAddress,payment);   
     }
 
@@ -357,11 +367,37 @@ contract FlightSuretyData {
      *  @dev Credits payouts to insurees
     */
     function creditInsurees
-                                (
-                                )
-                                external
-                                pure
+                    (
+                        bytes32 flightKey
+                    )
+                    internal
+                    requireIsOperational
+                    requireIsFlight(flightKey)
     {
+        Flight storage flight = flights[flightKey];
+        for (uint i = 0; i < customers.length; i++) {
+            insureeCredit[customers[i]] = flight.flightInsurances[customers[i]];
+            emit creditInsurance(flight.flightInsurances[customers[i]],customers[i]);
+        }
+    }
+
+    function processFlightStatus
+                        (
+                            bytes32 flightKey,
+                            uint8 statusCode
+                        )
+                            external
+                            requireIsOperational
+                            requireIsFlight(flightKey) 
+                            requiredNoProccessPaymentInsuree(flightKey)
+    {
+        Flight storage flight = flights[flightKey];
+
+        flight.statusCode = statusCode;
+        //statusCode 20 = to flight delay due to airline
+        if (statusCode == 20) {
+            creditInsurees(flightKey);
+        }
     }
     
 
@@ -370,11 +406,16 @@ contract FlightSuretyData {
      *
     */
     function pay
-                            (
-                            )
-                            external
-                            pure
+            (
+                address customer
+            )
+            external
     {
+        require(insureeCredit[customer] > 0, "There is no insurance payment"); 
+        uint payment = insureeCredit[customer];
+        insureeCredit[customer] = 0;
+        customer.transfer(payment);
+        emit insurancePaid(payment, customer);
     }
 
    /**
