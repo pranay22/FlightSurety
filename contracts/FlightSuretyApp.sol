@@ -501,101 +501,104 @@ contract FlightSuretyData{
     mapping(address => Airline) airlines;
     uint256 public totalRegisteredAirlines;
 
-    function isOperational() 
-                            public 
-                            view 
-                            returns(bool);
+    function isOperational
+        () 
+        public 
+        view 
+        returns(bool);
 
     function setOperatingStatus
-                            (
-                                bool mode
-                            ) 
-                            external;
+        (
+            bool mode
+        ) 
+        external;
 
     function paidRegistration
-                            (
-                               address airlineAddress
-                            ) 
-                            external
-                            view 
-                            returns (bool);
+        (
+            address airlineAddress
+        ) 
+        external
+        view 
+        returns (bool);
 
     function isAirline
-                    (
-                        address addressAirline
-                    )
-                    external
-                    view
-                    returns (bool);                        
+        (
+            address addressAirline
+        )
+        external
+        view
+        returns (bool);                        
 
     function fund
-                (    
-                    address fundAddress
-                )
-                public
-                payable; 
+        (    
+            address fundAddress
+        )
+        public
+        payable; 
 
     function getFlightKey
-                        (
-                            address airline,
-                            string flightCode,
-                            uint256 departureTime
-                        )
-                        pure
-                        external
-                        returns(bytes32);
+        (
+            address airline,
+            string flightCode,
+            uint256 departureTime
+        )
+        pure
+        external
+        returns(bytes32);
 
     function registerAirline
-                        ( 
-                            string name,
-                            address newAirline,
-                            address airlineReferral
-                        )
-                        external;
+        ( 
+            string name,
+            address newAirline,
+            address airlineReferral
+        )
+        external;
 
     function registerFlight
-                        (
-                            uint statusCode,
-                            string flightCode,
-                            string origin,
-                            string destination,
-                            uint256 departureTime,
-                            uint ticketFee,
-                            address airlineAddress
-                        )
-                        external;   
+        (
+            uint statusCode,
+            string flightCode,
+            string origin,
+            string destination,
+            uint256 departureTime,
+            uint ticketFee,
+            address airlineAddress
+        )
+        external;   
     
     function getTicketFee
-                        (
-                           bytes32 flightKey
-                        )
-                        pure
-                        external
-                        returns (uint);
+        (
+            bytes32 flightKey
+        )
+        pure
+        external
+        returns (uint);
 
     function getFlightTicket
-                        (
-                          bytes32 flightKey, 
-                          address customerAddress 
+        (
+            bytes32 flightKey, 
+            address customerAddress 
 
-                        )
-                        external;
+        )
+        external;
 
 
     function buyFligthAndInsurance
-                            (     
-                             bytes32 flightKey,   
-                             uint payment, 
-                             address customerAddress                       
-                            )
-                            external
-                            payable;
-    function pay(
+        (     
+            bytes32 flightKey,   
+            uint payment, 
+            address customerAddress                       
+        )
+        external
+        payable;
+    function pay
+        (
         address customer
         ) 
         external;
 
-    function processFlightStatus(
+    function processFlightStatus
+        (
         bytes32 flightKey, 
         uint8 statusCode
         )  
