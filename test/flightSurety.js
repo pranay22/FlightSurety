@@ -16,6 +16,7 @@ contract('Flight Surety Tests', async (accounts) => {
   const destination = "ARGENTINA";
   const departureTime = Math.floor(Date.now() / 100000) + 10000000000000;
   const ticketFee = web3.utils.toWei('1', 'ether');
+  const fee = web3.utils.toWei('2', 'ether') ;
 
   before('setup contract', async () => {
     config = await Test.Config(accounts);
@@ -185,12 +186,26 @@ contract('Flight Surety Tests', async (accounts) => {
       destination,
       departureTime,
       ticketFee,  
-      { from: config.firstAirline})
+      { from: config.firstAirline});
 
     truffleAssert.eventEmitted(registerFlight, 'registeredFlight', ev => {
       return ev.flightCode === "BRAARG"
     });
-
   });
-  
+
+  it('Customer buys ticket and insurance', async () => {
+      await config.flightSuretyApp.getFlightTicketAndBuyInsurance(
+      config.firstAirline,  
+      flightCode,
+      departureTime,
+      accounts[6],
+      fee,
+      {
+        from: accounts[6],
+        value: fee 
+      }
+    )  
+    assert(await config.flightSuretyData.checkBoughtFlightTicket(config.firstAirline,flightCode, departureTime, accounts[6]));
+  })
+
 });

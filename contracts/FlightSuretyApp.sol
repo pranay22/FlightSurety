@@ -93,6 +93,12 @@ contract FlightSuretyApp {
         _;
     }
 
+    modifier requirePaymentBuyTicketAndInsurance(address airline, string flightCode, uint256 departureTime, uint payment) {
+        require(payment >= flightSuretyData.getTicketFee(getFlightKey(airline, flightCode, departureTime)).add(1 ether)
+                , "Requires greater payment to get ticket and Insurance");
+        _;
+    }
+
     /********************************************************************************************/
     /*                                       CONSTRUCTOR                                        */
     /********************************************************************************************/
@@ -231,10 +237,30 @@ contract FlightSuretyApp {
                         internal
                         returns(bytes32)
     {
-
-    return flightSuretyData.getFlightKey(airline, flightCode, departureTime);
-
+        return flightSuretyData.getFlightKey(airline, flightCode, departureTime);
     } 
+
+    function getFlightTicketAndBuyInsurance
+                                    (
+                                        address airline,
+                                        string flightCode,
+                                        uint256 departureTime,  
+                                        address customerAddress,
+                                        uint payment 
+                                    )
+                                    external
+                                    requirePaymentBuyTicketAndInsurance(airline, flightCode, departureTime, payment)
+                                    payable
+    {
+        bytes32 flightKey = getFlightKey(airline, flightCode, departureTime); 
+        uint total = flightSuretyData.getTicketFee(flightKey).add(1 ether);
+        if(msg.value > total){
+            uint change = msg.value - total;
+            msg.sender.transfer(change);
+        } 
+        flightSuretyData.getFlightTicket(flightKey,customerAddress);
+        flightSuretyData.buyFligthAndInsurance.value(msg.value)(flightKey,payment,customerAddress);
+    }
     
    /**
     * @dev Called after oracle has updated flight status
@@ -512,7 +538,7 @@ contract FlightSuretyData{
                             address airlineReferral
                         )
                         external;
-                        
+
     function registerFlight
                         (
                             uint statusCode,
@@ -524,4 +550,30 @@ contract FlightSuretyData{
                             address airlineAddress
                         )
                         external;   
+    
+    function getTicketFee
+                        (
+                           bytes32 flightKey
+                        )
+                        pure
+                        external
+                        returns (uint);
+
+    function getFlightTicket
+                        (
+                          bytes32 flightKey, 
+                          address customerAddress 
+
+                        )
+                        external;
+
+
+    function buyFligthAndInsurance
+                            (     
+                             bytes32 flightKey,   
+                             uint payment, 
+                             address customerAddress                       
+                            )
+                            external
+                            payable;   
 }
