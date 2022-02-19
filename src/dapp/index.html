@@ -23,8 +23,29 @@
 
         <div id="display-wrapper" class="top-20">
         </div>
-        <div class="row top-20">
-            <label class="form">Flight</label> <input type="text" id="flight-number"> <btn class="btn btn-primary" id="submit-oracle">Submit to Oracles</btn>
+        <h5>Search in oracle</h5>
+        <div id="display-wrapper" class="top-20">     
+           <!-- fetchflightStatus: status from Oracle -->
+           <label class="form">Airline
+           <input type="text" id="input-oracle-airline" placeholder="address" required> 
+            </label>
+           <label class="form">Flight 
+           <input type="text" id="input-oracle-flightCode" placeholder="code" required> 
+           </label>
+           <label class="form">Departure
+            <input type="text" id="input-oracle-departureTime" placeholder="timestamp" required> 
+            </label>
+            <btn class="btn btn-primary" id="submit-oracle">Submit to Oracles</btn>
+        </div>
+        <!-- authorizeCaller: contract authorization -->
+        <div id="display-wrapper" class="top-20">
+            <h5>Authorize Customer by contract owner</h5>   
+            <div class="row top-20"></div>
+              <label class="form">Authorize
+                <input type="text" id="input-auth-customer" placeholder="new address" required>                   
+              </label>
+              <btn class="btn btn-primary" id="btn-auth-customer">Authorize Customer</btn>
+            </div>
         </div>
     </main>
 
