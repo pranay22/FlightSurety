@@ -33,7 +33,7 @@
            <input type="text" id="input-oracle-flightCode" placeholder="code" required> 
            </label>
            <label class="form">Departure
-            <input type="text" id="input-oracle-departureTime" placeholder="timestamp" required> 
+            <input type="number" id="input-oracle-departureTime" placeholder="timestamp" required> 
             </label>
             <btn class="btn btn-primary" id="submit-oracle">Submit to Oracles</btn>
         </div>
@@ -46,6 +46,66 @@
               </label>
               <btn class="btn btn-primary" id="btn-auth-customer">Authorize Customer</btn>
             </div>
+            <!-- fund and register airline-->
+        <div id="display-wrapper" class="top-20">
+            <h5>Register airline and fund</h5>  
+            <label class="form">Airline
+                <input type="text" id="btn-register-airline" placeholder="address" required>
+            </label>
+            <label class="form">Fund
+                <input type="number" id="input-fund" min="10" placeholder="ether" required>
+            </label>
+            <btn class="btn btn-primary" id="input-reg-airline-addr">Register Airline</btn> 
+        </div>
+
+        <!-- register flight -->
+        <div id="display-wrapper" class="top-20"> 
+            <h5>Flights</h5>
+                <label class="form">Flight code
+                  <input type="text" id="input-flight-flightCode">
+                </label>
+                <label class="form">Flight origin
+                  <input type="text" id="input-flight-origin">
+                </label>
+                <label class="form">Destination
+                    <input type="text" id="input-flight-destination">
+                  </label>
+                <label class="form">Departure time
+                    <input type="datetime-local" id="input-flight-departureTime">
+                  </label>
+                <label class="form">Ticket fee
+                  <input type="number" id="input-flight-ticketFee" min='0'>
+                </label>
+                <btn class="btn btn-primary" id="btn-register-flight">Register Flight</btn>
+        </div>
+
+        <!-- buy flight ticket and get insurance -->
+        <div id="display-wrapper" class="top-20"> 
+            <h5>Buy Flight ticket & insurance</h5>
+            <label class="form">Airline address
+                <input type="text" id="input-buy-flight-airline-address">
+              </label>
+            <label class="form">Flight code
+              <input type="text" id="input-buy-flight-flightCode">
+            </label>
+            <label class="form">Departure time
+                <input type="datetime-local" id="input-buy-flight-departureTime">
+              </label>
+            <label class="form">Customer address
+                <input type="text" id="input-buy-flight-customer-address">
+              </label> 
+            <label class="form">Payment
+              <input type="number" id="input-buy-flight-payment" min='0'>
+            </label>
+            <btn class="btn btn-primary" id="btn-buy-flight">Buy Flight</btn>
+        </div> 
+
+        <!--pay insurance -->
+        <div id="display-wrapper" class="top-20">
+            <h5>Pay insurance</h5>
+            <p>In case there is a flight delay due to airline</p>
+            <btn class="btn btn-primary" id="btn-pay-insurance">Pay Insurance</btn>
+        </div>     
         </div>
     </main>
 
