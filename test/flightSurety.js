@@ -208,4 +208,13 @@ contract('Flight Surety Tests', async (accounts) => {
     assert(await config.flightSuretyData.checkBoughtFlightTicket(config.firstAirline,flightCode, departureTime, accounts[6]));
   })
 
+  it('Pays insurance to customer', async () => {
+        beforePayment = await web3.eth.getBalance(config.firstAirline);
+        payment = await config.flightSuretyApp.payInsurance({ from: config.firstAirline });
+        afterPayment = await web3.eth.getBalance(config.firstAirline);
+        assert(beforePayment < afterPayment);
+        truffleAssert.eventEmitted(payment, 'paidInsurance', ev => {
+        return ev.customer === config.firstAirline
+        })
+    })
 });
