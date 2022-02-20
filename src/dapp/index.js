@@ -15,15 +15,19 @@ import './flightsurety.css';
             console.log(error,result);
             display('Operational Status', 'Check if contract is operational', [ { label: 'Operational Status', error: error, value: result} ]);
         });
-    
+
+        contract.isAuthorizedCaller((error,result) => {
+            display('Authorize contract owner', 'Check authorization status', [{label: 'Contract Authorization status', error: error, value: result }])
 
         // User-submitted transaction
-        DOM.elid('submit-oracle').addEventListener('click', () => {
-            let flight = DOM.elid('flight-number').value;
-            // Write transaction
-            contract.fetchFlightStatus(flight, (error, result) => {
-                display('Oracles', 'Trigger oracles', [ { label: 'Fetch Flight Status', error: error, value: result.flight + ' ' + result.timestamp} ]);
-            });
+        DOM.elid('submit-oracle').addEventListener('click', async () => {
+            let airline = DOM.elid('input-oracle-airline').value;
+            let flightCode = DOM.elid('input-oracle-flightCode').value;  
+            let departureTime = DOM.elid('input-oracle-departureTime').value; 
+            departureTime = new Date(departureTime).getTime()
+
+           const key = await contract.fetchFlightStatus(airline, flightCode, departureTime);
+           console.log(key) //todo
         })
     
     });
@@ -45,6 +49,12 @@ function display(title, description, results) {
     })
     displayDiv.append(section);
 
+    DOM.elid('btn-auth-customer').addEventListener('click', async () => {
+        let inputAuthCustomer = DOM.elid('input-auth-customer').value
+        const { result, error } = await contract.authorizeCaller(inputAuthCustomer)
+        console.log(`Result input auth customer: ${result}`);
+        console.log(`Error input auth customer: ${error}`);     
+      })
 }
 
 
